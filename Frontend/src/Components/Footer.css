@@ -1,0 +1,31 @@
+.footer {
+    background: linear-gradient(to right, #11998e, #38ef7d);
+    color: #fff;
+    padding: 3rem 1rem 1rem;
+    margin-top: 4rem;
+  }
+  
+  .footer-link {
+    color: #ffffffcc;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+  
+  .footer-link:hover {
+    color: #fff;
+    text-decoration: underline;
+  }
+  
+  .social-icon {
+    color: #ffffffdd;
+    font-size: 1.3rem;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  
+  .social-icon:hover {
+    color: #fff;
+    transform: scale(1.1);
+  }
+  

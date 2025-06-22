@@ -1,0 +1,21 @@
+#login{
+
+    height: 100%;
+    width: 100vh;
+}
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+#box{
+    background-color: rgb(91, 11, 161);
+}
+#btn{
+    background-color: black;
+    color: white;
+}
+#btn2{
+    background-color: black;
+    color: white;
+}
