@@ -20,6 +20,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Simulated in-memory store
+users = {
+    "demo_user": {
+        "xp": 200,
+        "projects": [
+            {"title": "Build a Recursion Visualizer", "status": "Completed"},
+            {"title": "Create a Sorting Algorithm Game", "status": "In Progress"}
+        ]
+    }
+}
+
 class ConceptInput(BaseModel):
     concept: str
 
@@ -44,13 +55,24 @@ async def generate_project(input: ConceptInput):
 
 @app.post("/generate-roadmap")
 async def generate_roadmap(input: ConceptInput):
-    # Placeholder for roadmap visual generation
     roadmap = {
         "title": f"Roadmap for {input.concept}",
         "steps": [
-            {"topic": "Basics of " + input.concept, "duration": "2 days"},
+            {"topic": f"Basics of {input.concept}", "duration": "2 days"},
             {"topic": "Hands-on with examples", "duration": "3 days"},
             {"topic": "Build final project", "duration": "2 days"}
         ]
     }
     return {"roadmap": roadmap}
+
+@app.get("/fetch-dashboard-data")
+async def fetch_dashboard():
+    user = users.get("demo_user")
+    if not user:
+        return {"xp": 0, "completed": 0, "projects": []}
+    completed = sum(1 for proj in user["projects"] if proj["status"] == "Completed")
+    return {
+        "xp": user["xp"],
+        "completed": completed,
+        "projects": user["projects"]
+    }
