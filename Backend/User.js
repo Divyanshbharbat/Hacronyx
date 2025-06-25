@@ -1,19 +1,24 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
-const userschema = new mongoose.Schema({
-  username: {
-    type: String,
-  },
-  email: {
-    type: String,
-    required: true
-  },
-    performance: { type: Number, default: 0 },
-  password: {
-    type: String,
-    required: true
-  },
-
+const projectSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  roadmap: [String],
+  tasks: [String],
+  completed: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('User', userschema);
+const batchSchema = new mongoose.Schema({
+  projects: [projectSchema],
+  createdAt: { type: Date, default: Date.now },
+});
+
+const userSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  batches: [batchSchema],
+});
+
+export default mongoose.model('User', userSchema);

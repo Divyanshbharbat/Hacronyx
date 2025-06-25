@@ -7,8 +7,8 @@ const Navbar = () => {
   const isLoggedIn = !!localStorage.getItem('cookie') || !!localStorage.getItem('cookie2');
 
   const handleLogout = () => {
-    if (localStorage.getItem('cookie')) localStorage.removeItem('cookie');
-    if (localStorage.getItem('cookie2')) localStorage.removeItem('cookie2');
+    localStorage.removeItem('cookie');
+    localStorage.removeItem('cookie2');
     navigate('/');
   };
 
@@ -22,18 +22,18 @@ const Navbar = () => {
 
   return (
     <nav
-      className="navbar navbar-expand-lg navbar-dark shadow"
+      className="navbar navbar-expand-lg shadow"
       style={{
-        background: 'linear-gradient(90deg, #38ef7d 0%, #11998e 100%)',
+        background: 'linear-gradient(90deg, #0e2148, #483aa0)',
         padding: '1rem 2rem',
       }}
     >
       <div className="container-fluid">
-        <NavLink className="navbar-brand fw-bold fs-3 text-white" to="/" onClick={handleNavLinkClick}>
-          🌱 FoodDonate
+        <NavLink className="navbar-brand fw-bold fs-3 text-warning" to="/" onClick={handleNavLinkClick}>
+          🧠 BrainBuildr
         </NavLink>
         <button
-          className="navbar-toggler"
+          className="navbar-toggler navbar-dark"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarNav"
@@ -46,41 +46,17 @@ const Navbar = () => {
 
         <div className="collapse navbar-collapse justify-content-end" id="navbarNav">
           <ul className="navbar-nav">
-            <li className="nav-item mx-2">
-              <NavLink className="nav-link text-white fw-semibold" to="/home" onClick={handleNavLinkClick}>
-                Home
-              </NavLink>
-            </li>
-            <li className="nav-item mx-2">
-              <NavLink className="nav-link text-white fw-semibold" to="/about" onClick={handleNavLinkClick}>
-                About
-              </NavLink>
-            </li>
-            <li className="nav-item mx-2">
-              <NavLink className="nav-link text-white fw-semibold" to="/donate" onClick={handleNavLinkClick}>
-                Donate
-              </NavLink>
-            </li>
-            <li className="nav-item mx-2">
-              <NavLink className="nav-link text-white fw-semibold" to="/leaderboard" onClick={handleNavLinkClick}>
-               LeaderBoard
-              </NavLink>
-            </li>
-            <li className="nav-item mx-2">
-              <NavLink className="nav-link text-white fw-semibold" to="/contact" onClick={handleNavLinkClick}>
-                Contact
-              </NavLink>
-            </li>
+            {['home', 'about', 'projects', 'contact'].map((route, i) => (
+              <li className="nav-item mx-2" key={i}>
+                <NavLink className="nav-link text-light fw-semibold" to={`/${route}`} onClick={handleNavLinkClick}>
+                  {route.charAt(0).toUpperCase() + route.slice(1)}
+                </NavLink>
+              </li>
+            ))}
 
             {!isLoggedIn ? (
               <li className="nav-item mx-2">
-                <button
-                  className="btn btn-outline-light fw-bold"
-                  onClick={() => {
-                    navigate('/login');
-                    handleNavLinkClick();
-                  }}
-                >
+                <button className="btn btn-outline-warning fw-bold" onClick={() => navigate('/login')}>
                   Login
                 </button>
               </li>

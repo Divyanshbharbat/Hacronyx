@@ -1,0 +1,27 @@
+.project-card {
+  border-radius: 12px;
+  transition: transform 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.project-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+input.form-control {
+  margin-right: 10px;
+}
+
+.input-group .btn {
+  margin-left: 5px;
+}
+
+ul {
+  padding-left: 20px;
+}
+
+h4 {
+  color: #333;
+  font-weight: 600;
+}

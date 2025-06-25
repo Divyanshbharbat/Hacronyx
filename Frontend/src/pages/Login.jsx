@@ -23,7 +23,7 @@ useEffect(()=>{
   const onSubmit = async (data) => {
     try {
      
-      const res = await axios.post(`${import.meta.env.VITE_APP}/login`, data,{withCredentials:true,});
+      const res = await axios.post(`http://localhost:3000/login`, data,{withCredentials:true,});
       if (res.data.message === "success") {
         localStorage.setItem("cookie", res.data.token);
         toast.success("Login Successful 🎉");
