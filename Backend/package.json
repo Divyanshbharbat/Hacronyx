@@ -7,7 +7,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "npm run dev",
+    "start": "node index.js ",
     "start:backend": "nodemon Backend/index.js"
   },
   "author": "",
