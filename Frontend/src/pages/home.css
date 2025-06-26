@@ -1,27 +1,192 @@
-.project-card {
-  border-radius: 12px;
-  transition: transform 0.2s ease-in-out;
-  cursor: pointer;
+/* Background and layout */
+body, .bg-dark {
+  background: linear-gradient(145deg, #000000, #0f0f0f, #1a1a1a);
+  color: #fff;
 }
 
-.project-card:hover {
+/* Gradient headline */
+/* .text-gradient {
+  background: linear-gradient(90deg, #00ffb7, #00c9ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+} */
+#card{
+    color: linear-gradient(90deg, #00ffb7, #00c9ff);
+}
+/* Card enhancements */
+.card {
+  background: #ebf0ed08;
+  backdrop-filter: blur(6px);
+color: #00c9ff;
+  border-radius: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 25px rgba(0, 255, 150, 0.15), 0 0 40px rgba(0, 255, 255, 0.1);
+}
+
+/* Chat bubble styles */
+.bg-primary {
+  background-color: #00ffb7 !important;
+  color: #000;
+}
+
+.bg-white.border {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #ccc;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Mermaid Diagram container */
+.bg-light {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Typing animation */
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background: #00ffb7;
+  border-radius: 50%;
+  animation: blink 1.4s infinite both;
+}
+
+.dot2 {
+  animation-delay: 0.2s;
+}
+
+.dot3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
+}
+
+/* Input area */
+textarea.form-control {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  border: none;
+  resize: none;
+}
+
+textarea::placeholder {
+  color: rgba(14, 4, 4, 0.5);
+}
+
+textarea:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  outline: none;
+  box-shadow: none;
+}
+
+/* Paperclip & Send Buttons */
+button.text-muted:hover {
+  color: #00ffb7 !important;
+}
+
+.btn-primary.rounded-circle {
+  background-color: #00ffb7;
+  color: #000;
+  border: none;
+}
+
+.btn-primary.rounded-circle:hover {
+  background-color: #00e0a2;
+}
+/* Animate textarea on focus */
+textarea.form-control {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+textarea.form-control:focus {
   transform: scale(1.02);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 183, 0.4);
 }
 
-input.form-control {
-  margin-right: 10px;
+/* Animate send button */
+.btn-primary.rounded-circle {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.input-group .btn {
-  margin-left: 5px;
+.btn-primary.rounded-circle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 255, 183, 0.6);
+}
+.text-gradient {
+  background: linear-gradient(90deg, #00ffb7, #00c9ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-ul {
-  padding-left: 20px;
+textarea.form-control {
+  background-color: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  border: none;
+  resize: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-h4 {
-  color: #333;
-  font-weight: 600;
+textarea.form-control:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(0, 255, 183, 0.4);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.btn-primary.rounded-circle {
+  background-color: #00ffb7;
+  color: #000;
+  border: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-primary.rounded-circle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 12px rgba(0, 255, 183, 0.6);
+}
+
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background: #00ffb7;
+  border-radius: 50%;
+  animation: blink 1.4s infinite both;
+}
+
+.dot2 {
+  animation-delay: 0.2s;
+}
+
+.dot3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
+}
+/* Gradient background for input area */
+.gradient-input {
+  background: linear-gradient(90deg, rgba(0,255,183,0.08), rgba(0,201,255,0.1));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.gradient-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.gradient-input:focus {
+  transform: scale(1.02);
+  box-shadow: 0 0 12px rgba(0, 255, 183, 0.4);
+  background: linear-gradient(90deg, rgba(0,255,183,0.18), rgba(0,201,255,0.15));
 }

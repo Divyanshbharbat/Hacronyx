@@ -1,59 +1,88 @@
-import React, { useEffect, useState } from 'react'
-import Navbar from './Components/Navbar'
-import Footer from './Components/Footer'
-import Landing from './pages/Landing'
-import Home from './pages/Home'
-import Login from './pages/Login'
-import Signup from './pages/Signup'
-import { createBrowserRouter,RouterProvider } from 'react-router-dom'
+import React from 'react';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+import Navbar from './Components/Navbar'; // Sidebar
+import Footer from './Components/Footer';
+import Landing from './pages/Landing';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import SidebarLayout from './Components/SidebarLayout';
+import Projects from './Components/Projects';
+import Roadmaps from './Components/Roadmaps';
+import FeedbackModal from './Components/FeedbackModal'; // ✅ Imported FeedbackModal
 
 const App = () => {
- 
- 
-
-
-  const router=createBrowserRouter([
+  const router = createBrowserRouter([
     {
-      path:"/",
-      element:<>
-      <Navbar/>
-    <Landing/>
-      <Footer/>
-      </>
-    },{
-      path:"/login",
-      element:<>
-      <Login/>
-      </>
+      path: '/',
+      element: (
+        <>
+          <SidebarLayout>
+          <Landing />
+        </SidebarLayout>
+        </>
+      ),
     },
     {
-
- path:"/signup",
- element:<>
-<Signup/>
- </>
-
+      path: '/login',
+      element: <Login />,
     },
-   
-   
-   
     {
-      path:'/home',
-      element:<>
-      <Navbar/>
-      <Home/>
-      <Footer/>
-      </>
-    }
-  
-    
-  ])
-  return (
-  <>
- <RouterProvider router={router} />
-  
-  </>
-  )
-}
+      path: '/signup',
+      element: <Signup />,
+    },
+    {
+      path: '/home',
+      element: (
+        <SidebarLayout>
+          <Home />
+        </SidebarLayout>
+      ),
+    },
+    {
+      path: '/about',
+      element: (
+        <SidebarLayout>
+          <div>About Page</div>
+        </SidebarLayout>
+      ),
+    },
+    {
+      path: '/projects',
+      element: (
+        <SidebarLayout>
+          <Projects />
+        </SidebarLayout>
+      ),
+    },
+    {
+      path: '/contact',
+      element: (
+        <SidebarLayout>
+          <div>Contact Page</div>
+        </SidebarLayout>
+      ),
+    },
+    {
+      path: '/roadmaps',
+      element: (
+        <SidebarLayout>
+          <Roadmaps />
+        </SidebarLayout>
+      ),
+    },
+    {
+      path: '/feedback',
+      element: (
+        <SidebarLayout>
+          <FeedbackModal isOpen={true} onClose={() => {}} /> {/* Test route */}
+        </SidebarLayout>
+      ),
+    },
+  ]);
 
-export default App
+  return <RouterProvider router={router} />;
+};
+
+export default App;

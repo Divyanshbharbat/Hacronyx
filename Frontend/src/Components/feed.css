@@ -1,0 +1,5 @@
+.gradient-glow {
+  background: linear-gradient(135deg, #000, #111);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0, 255, 150, 0.3);
+}

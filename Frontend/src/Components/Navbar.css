@@ -1,20 +1,100 @@
-.nav-link {
-    transition: color 0.3s ease;
-  }
-  
-  .nav-link:hover {
-    color: #d4f1f4 !important;
-    text-decoration: underline;
-  }
-  
-  .navbar-brand:hover {
-    color: #ffffff !important;
-    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
-  }
-  
-  button.btn-outline-light:hover {
-    background-color: white;
-    color: #11998e;
-    border-color: white;
-  }
-  
+.sidebar-expanded {
+  transition: all 0.3s ease-in-out;
+  background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+}
+
+.sidebar-collapsed {
+  transition: all 0.3s ease-in-out;
+  background: linear-gradient(145deg, #0f2027, #203a43, #2c5364);
+}
+#input{
+  color: white;
+}
+.nav-link-custom {
+  color: #ccc;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+}
+
+.nav-link-custom:hover {
+  background-color: rgba(0, 255, 150, 0.1);
+  color: #00ffb7 !important;
+  box-shadow: 0 0 10px rgba(0, 255, 150, 0.3);
+}
+
+.btn-outline-light {
+  border-color: #00ffb7;
+  color: #00ffb7;
+}
+
+.btn-outline-light:hover {
+  background-color: #00ffb7;
+  color: #000;
+}
+
+input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+input.bg-secondary {
+  background-color: #1e2a36 !important;
+  color: #fff;
+}
+
+.btn-success {
+  background-color: #2ce58d;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #1fc77a;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border: none;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border: none;
+}
+
+.btn-danger:hover {
+  background-color: #b52a38;
+}
+.nav-link-custom {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.nav-link-custom:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  transform: scale(1.02);
+}
+
+.active-link {
+  background-color: #17a2b8 !important;
+  color: #fff !important;
+  font-weight: bold;
+}
+.nav-link-custom {
+  transition: all 0.3s ease;
+  border-radius: 0.375rem;
+  padding-left: 12px;
+}
+
+.nav-link-custom:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px #00ffcc66;
+}
+
+.active-link {
+  background-color: rgba(0, 255, 170, 0.2) !important;
+  border-left: 3px solid #00ffaa;
+}

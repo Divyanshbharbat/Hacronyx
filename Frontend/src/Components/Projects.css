@@ -1,0 +1,46 @@
+body {
+  background: linear-gradient(145deg, #000000, #0a0a0a, #1c1c1c);
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
+}
+
+.project-glow {
+  border-radius: 15px;
+  background: rgba(20, 20, 20, 0.95);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 20px rgba(100, 255, 100, 0.08), 0 0 30px rgba(100, 255, 100, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-glow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 25px rgba(0, 255, 150, 0.3), 0 0 40px rgba(0, 255, 255, 0.1);
+}
+
+.card-body {
+  border-radius: 15px;
+}
+
+.badge {
+  font-size: 0.75rem;
+}
+
+.btn-outline-primary {
+  border-color: #00ffb7;
+  color: #00ffb7;
+}
+
+.btn-outline-primary:hover {
+  background-color: #00ffb7;
+  color: #000;
+}
+
+.btn-success {
+  background-color: #2ce58d;
+  border: none;
+}
+
+.btn-success:hover {
+  background-color: #1fc77a;
+  color: white;
+}

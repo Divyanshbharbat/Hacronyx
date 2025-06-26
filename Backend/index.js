@@ -56,7 +56,7 @@ Make sure the tasks are beginner-friendly and scale complexity appropriately. Us
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
-  console.log(response,"divyansh")
+ 
   return response.text();
 }
 
@@ -114,6 +114,83 @@ function parseMarkdownToTasks(markdown) {
 
 
 
+const verifyToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, 'divyansh'); // Use env in production
+    req.username = decoded.username;
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
+};
+app.get('/api/user/profile', verifyToken, async (req, res) => {
+    const user = await User.findOne({ username: req.username }); // Adjust based on DB
+  if (!user) return res.status(404).json({ error: 'User not found' });
+  res.json({ email: user.email, name: user.name });
+});
+app.get('/api/roadmaps', verifyToken, async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.username });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const roadmaps = [];
+
+    user.batches.forEach((batch) => {
+      batch.projects.forEach((project) => {
+      
+        roadmaps.push({
+          title: project.title,
+          description: project.description,
+          duration: `${(project.roadmap?.length || 0) * 1.5} weeks`,
+          difficulty: 'Intermediate',
+          chart: generateMermaidChart(project.roadmap || []),
+        });
+      });
+    });
+
+    res.json({ roadmaps });
+  } catch (err) {
+    console.error('Error fetching roadmaps:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+function escapeMermaidLabel(label) {
+  return label
+    .replace(/\[/g, '(')
+    .replace(/\]/g, ')')
+    .replace(/\(/g, '\\(')     // escape parentheses
+    .replace(/\)/g, '\\)')     // escape parentheses
+    .replace(/:/g, '\\:')      // escape colons
+    .replace(/\./g, '')        // remove periods (optional but helpful)
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, "'");       // escape quotes
+}
+
+function generateMermaidChart(steps = []) {
+  if (!steps.length) return 'graph TD\nA[Start]';
+
+  let chart = 'graph TD\nA[Start]';
+  let prev = 'A';
+
+  steps.forEach((step, i) => {
+    const id = `S${i}`;
+    const cleanLabel = escapeMermaidLabel(step?.trim() || `Step ${i + 1}`);
+    chart += `\n${prev} --> ${id}["${cleanLabel}"]`;  // Wrapped in double quotes
+    prev = id;
+  });
+
+  chart += `\nstyle A fill:#3b82f6\nstyle ${prev} fill:#10b981`;
+  return chart;
+}
 
 
 app.post('/api/divyansh', async (req, res) => {
@@ -127,28 +204,31 @@ app.post('/api/divyansh', async (req, res) => {
     const user = await User.findOne({ username });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
-    const { concept, background, domain } = req.body;
-    if (!concept || !background) {
+    const { concept, background, filePath } = req.body;
+    if (!concept) {
       return res.status(400).json({ error: 'Concept and background are required' });
     }
 
-    const markdown = await generateProjectIdeas(concept, background, domain);
+    // Optional: log filePath or use it in generateProjectIdeas
+    if (filePath) {
+      console.log("Received uploaded file path:", filePath);
+    }
+
+    // Use filePath in your AI generation logic if relevant
+    const markdown = await generateProjectIdeas(concept, background, filePath); // You might modify this function to use the file
     const projects = parseMarkdownToTasks(markdown);
 
-    if (!user.batches) user.batches = [];
+    const roadmap = projects?.[0]?.roadmap || [];
 
+    user.batches = user.batches || [];
     user.batches.push({
-      projects, // Array of projects in this batch
+      projects,
       createdAt: new Date(),
     });
 
     await user.save();
 
-    res.json({
-      message: "success",
-      _id: user._id,
-      batches: user.batches,
-    });
+    res.json({ roadmap });
   } catch (err) {
     console.error(err);
     if (err.name === 'JsonWebTokenError') {
@@ -157,7 +237,6 @@ app.post('/api/divyansh', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 function groupTasksByLevel(tasks) {
   const grouped = {
     beginner: [],
@@ -257,7 +336,7 @@ app.patch('/api/batches/:batchId/projects/:projectId/complete', async (req, res)
 
 
 // ✅ MongoDB connection
-mongoose.connect("mongodb://localhost:27017/hacronyx")
+mongoose.connect("mongodb+srv://bharbatdivyansh1:divyansh9850364491@cluster0.jrdbpad.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => console.log("MongoDB connected successfully"))
   .catch(err => console.error("MongoDB connection error", err));
 

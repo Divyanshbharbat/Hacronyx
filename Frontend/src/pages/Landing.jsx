@@ -1,122 +1,129 @@
-import React, { useEffect } from "react";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import { Button, Container, Row, Col } from "react-bootstrap";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowRight, Sparkles, Target, Map, TrendingUp, Lightbulb } from "lucide-react";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const Landing = () => {
-  useEffect(() => {
-    AOS.init({ duration: 1000 });
-  }, []);
+export default function LandingPage() {
+  const navigate = useNavigate();
+
+  const features = [
+    {
+      icon: <Target className="text-primary me-2" size={20} />,
+      title: "Smart Project Generation",
+      description: "Generate projects tailored to your skill level and learning goals with our advanced AI algorithm.",
+    },
+    {
+      icon: <TrendingUp className="text-success me-2" size={20} />,
+      title: "Progress Tracking",
+      description: "Track your learning journey with detailed progress analytics and milestone achievements.",
+    },
+    {
+      icon: <Lightbulb className="text-warning me-2" size={20} />,
+      title: "Business Niche Integration",
+      description: "Every project comes with real-world business applications and market insights.",
+    },
+    {
+      icon: <Map className="text-info me-2" size={20} />,
+      title: "Personalized Roadmaps",
+      description: "Get step-by-step learning paths with estimated timelines and recommended tech stacks.",
+    },
+  ];
+
+  const testimonials = [
+    {
+      name: "Sarah Chen",
+      role: "Full Stack Developer",
+      content:
+        "ProjectPilot helped me transition from frontend to full-stack development with perfectly tailored projects.",
+    },
+    {
+      name: "Marcus Johnson",
+      role: "CS Student",
+      content: "The progress tracking feature is incredible. I can see exactly how much I've learned and what's next.",
+    },
+    {
+      name: "Elena Rodriguez",
+      role: "Product Manager",
+      content:
+        "Finally, an AI tool that understands business context. Every project has real market applications.",
+    },
+  ];
 
   return (
-    <div style={{ backgroundColor: "rgb(14, 33, 72)", color: "white" }}>
+    <div className="bg-black text-white">
       {/* Hero Section */}
-      <section
-        className="d-flex align-items-center"
-        style={{ minHeight: "100vh", background: "linear-gradient(to right, rgb(72, 58, 160), rgb(121, 101, 193))" }}
-      >
-        <Container className="text-center" data-aos="fade-up">
-          <h1 className="display-3 fw-bold text-warning">R2-05 DIY Mission Engine</h1>
-          <p className="lead text-light mt-3 mb-4">
-            Turn your learning into action. Generate personalized hands-on project ideas based on what you study.
+      <section className="min-vh-100 d-flex flex-column justify-content-center align-items-center text-center p-5">
+        <motion.div className="mb-4" initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }}>
+          <Sparkles size={40} className="text-light mb-2" />
+          <h1 className="display-4 fw-bold">
+            Generate Projects with <span className="text-info">AI Precision</span>
+          </h1>
+          <p className="lead text-light">
+            ProjectPilot creates personalized projects based on your skill level, provides detailed roadmaps, and
+            tracks your progress like no other AI tool.
           </p>
-          <Button variant="light" size="lg">Get Started</Button>
-          <div className="mt-5">
-            <img
-              src="https://cdni.iconscout.com/illustration/premium/thumb/ai-assistant-4484382-3724323.png"
-              alt="AI Assistant"
-              className="img-fluid w-50 rounded shadow"
-            />
-          </div>
-        </Container>
+        </motion.div>
+
+        <motion.div
+          className="d-flex gap-3"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <button
+            className="btn btn-info btn-lg d-flex align-items-center"
+            onClick={() => navigate("/home")}
+          >
+            Start Building Projects <ArrowRight className="ms-2" size={20} />
+          </button>
+        </motion.div>
       </section>
 
       {/* Features Section */}
-      <section className="py-5">
-        <Container>
-          <h2 className="text-center text-warning fw-bold mb-5" data-aos="fade-down">Key Features</h2>
-          <Row>
-            {[
-              {
-                title: "Smart Input Processing",
-                desc: "Submit a concept or a full transcript. Our AI parses and understands it instantly.",
-                img: "https://img.icons8.com/color/452/artificial-intelligence.png"
-              },
-              {
-                title: "Tailored Project Ideas",
-                desc: "Receive multiple project suggestions suitable for your background and interests.",
-                img: "https://img.icons8.com/external-wanicon-flat-wanicon/452/external-project-education-wanicon-flat-wanicon.png"
-              },
-              {
-                title: "Built-in Guidance",
-                desc: "Get starter code, hardware diagrams, and research templates with each task.",
-                img: "https://img.icons8.com/external-flat-juicy-fish/452/external-guide-ui-flat-juicy-fish.png"
-              },
-            ].map((item, index) => (
-              <Col md={4} className="mb-4" key={index} data-aos="fade-up" data-aos-delay={index * 200}>
-                <div className="card h-100 text-center p-4 shadow-lg border-0" style={{ backgroundColor: "rgb(72, 58, 160)", color: "white" }}>
-                  <img src={item.img} alt={item.title} className="mb-3" style={{ width: "80px", height: "80px" }} />
-                  <h5 className="fw-bold">{item.title}</h5>
-                  <p>{item.desc}</p>
-                </div>
-              </Col>
-            ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Why Use Section */}
-      <section className="py-5" style={{ backgroundColor: "rgb(121, 101, 193)" }}>
-        <Container>
-          <h2 className="text-center fw-bold text-white mb-5" data-aos="fade-down">Why R2-05?</h2>
-          <Row>
-            <Col md={6} data-aos="fade-right">
-              <img
-                src="https://cdni.iconscout.com/illustration/premium/thumb/education-technology-3948492-3280574.png"
-                alt="Why R2-05"
-                className="img-fluid rounded shadow"
-              />
-            </Col>
-            <Col md={6} className="d-flex align-items-center" data-aos="fade-left">
-              <div>
-                <ul className="fs-5">
-                  <li>✓ Converts theory into practice instantly</li>
-                  <li>✓ AI-powered content relevance and creativity</li>
-                  <li>✓ Supports coding, design, research, and electronics</li>
-                  <li>✓ Empowers students with real-world experience</li>
-                </ul>
+      <section className="container py-5">
+        <h2 className="text-center mb-4">Everything you need to master any skill</h2>
+        <p className="text-center text-secondary mb-5">
+          ProjectPilot combines AI-powered project generation with comprehensive progress tracking, giving you the
+          complete learning experience other tools can't match.
+        </p>
+        <div className="row g-4">
+          {features.map((feature, idx) => (
+            <div className="col-md-6 col-lg-3" key={idx}>
+              <div className="bg-secondary bg-opacity-10 rounded p-4 h-100 border border-secondary">
+                <h5 className="d-flex align-items-center">{feature.icon} {feature.title}</h5>
+                <p className="text-light small mt-2">{feature.description}</p>
               </div>
-            </Col>
-          </Row>
-        </Container>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-5">
-        <Container>
-          <h2 className="text-center text-warning mb-5" data-aos="fade-down">What Learners Say</h2>
-          <Row>
-            {["I created my first Arduino bot in 3 hours!", "Helped me build a portfolio project from scratch.", "Brilliant for hackathon prep and real-world application."].map((quote, index) => (
-              <Col md={4} key={index} data-aos="fade-up" data-aos-delay={index * 200}>
-                <div className="p-4 rounded shadow-sm" style={{ backgroundColor: "rgb(227, 208, 149)", color: "rgb(14, 33, 72)" }}>
-                  <p className="mb-0">❝ {quote} ❞</p>
+      {/* Testimonial Section */}
+      <section className="py-5 bg-dark">
+        <div className="container">
+          <h2 className="text-center mb-4">Loved by developers worldwide</h2>
+          <p className="text-center text-secondary mb-5">
+            Join thousands of developers who've accelerated their learning with ProjectPilot
+          </p>
+          <div className="row justify-content-center">
+            {testimonials.map((testimonial, idx) => (
+              <div className="col-md-4 mb-4" key={idx}>
+                <div className="bg-dark border border-secondary rounded p-4 h-100">
+                  <div className="d-flex align-items-center mb-3">
+                    <div className="bg-secondary rounded-circle me-3" style={{ width: 40, height: 40 }}></div>
+                    <div>
+                      <h6 className="mb-0 text-white">{testimonial.name}</h6>
+                      <small className="text-muted">{testimonial.role}</small>
+                    </div>
+                  </div>
+                  <p className="fst-italic text-light">"{testimonial.content}"</p>
                 </div>
-              </Col>
+              </div>
             ))}
-          </Row>
-        </Container>
-      </section>
-
-      {/* Call to Action */}
-      <section className="py-5 text-center" style={{ backgroundColor: "rgb(14, 33, 72)" }}>
-        <Container data-aos="zoom-in">
-          <h2 className="text-warning fw-bold mb-3">Ready to Transform Your Learning?</h2>
-          <p className="text-light fs-5">Join thousands of students turning theory into hands-on reality with R2-05.</p>
-          <Button variant="warning" size="lg">Start Building Now</Button>
-        </Container>
+          </div>
+        </div>
       </section>
     </div>
   );
-};
-
-export default Landing;
+}
