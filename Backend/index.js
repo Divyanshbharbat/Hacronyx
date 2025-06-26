@@ -19,7 +19,7 @@ import router from './Router/router.js';
  // This import isn't needed unless you're defining new routers
 
 const corsOptions = {
-  origin: 'http://hacronyx3.netlify.app',
+  origin: 'http://hacronyx3.vercel.app',
   credentials: true,
 };
 app.use(cors(corsOptions));
