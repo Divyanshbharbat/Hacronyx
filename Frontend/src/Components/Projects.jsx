@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Star, Clock, CheckCircle, Map } from 'lucide-react';
+import { Star, Clock, Map, ListTodo, Target } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,14 +8,10 @@ import './Projects.css';
 
 const getBadgeClass = (difficulty) => {
   switch (difficulty) {
-    case 'Beginner':
-      return 'bg-success text-white';
-    case 'Intermediate':
-      return 'bg-warning text-dark';
-    case 'Advanced':
-      return 'bg-danger text-white';
-    default:
-      return 'bg-secondary text-white';
+    case 'Beginner': return 'bg-success text-white';
+    case 'Intermediate': return 'bg-warning text-dark';
+    case 'Advanced': return 'bg-danger text-white';
+    default: return 'bg-secondary text-white';
   }
 };
 
@@ -23,12 +19,14 @@ const Projects = () => {
   const [batches, setBatches] = useState([]);
   const token = localStorage.getItem('cookie');
   const navigate = useNavigate();
-useEffect(() => {
-  if (!token) {
-    toast.error('Please login to access projects.');
-    navigate('/login');
-  }
-}, [token]);
+
+  useEffect(() => {
+    if (!token) {
+      toast.error('Please login to access projects.');
+      navigate('/login');
+    }
+  }, [token]);
+
   useEffect(() => {
     fetchBatches();
   }, []);
@@ -44,33 +42,36 @@ useEffect(() => {
     }
   };
 
-  const handleComplete = async (batchId, projectId) => {
-    try {
-      await axios.patch(
-        // `http://localhost:3000/api/batches/${batchId}/projects/${projectId}/complete`,
-        `${import.meta.env.VITE_APP}/api/batches/${batchId}/projects/${projectId}/complete`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      toast.success('✅ Project marked as complete!');
-      fetchBatches();
-    } catch (err) {
-      toast.error('Failed to mark complete');
-      console.error(err);
-    }
+  const extractTools = (desc = '') => {
+    const match = desc.match(/\*\*Tools\/Materials needed:\*\*((.|\n)*?)\n\s*\n/);
+    if (!match) return [];
+    return match[1].split('\n').filter(line => line.trim().startsWith('*')).map(t => t.replace('*', '').trim());
+  };
+
+  const categorizeTasks = (tasks = []) => {
+    const categories = { Beginner: [], Intermediate: [], Advanced: [] };
+    let current = '';
+    tasks.forEach((task) => {
+      if (task.includes('**Beginner:**')) current = 'Beginner';
+      else if (task.includes('**Intermediate:**')) current = 'Intermediate';
+      else if (task.includes('**Advanced:**')) current = 'Advanced';
+      else if (task.trim()) categories[current]?.push(task.trim());
+    });
+    return categories;
   };
 
   const determineDifficulty = (tasks = []) => {
-    if (tasks.some((task) => task.includes('**Advanced:**'))) return 'Advanced';
-    if (tasks.some((task) => task.includes('**Intermediate:**'))) return 'Intermediate';
-    if (tasks.some((task) => task.includes('**Beginner:**'))) return 'Beginner';
-    return 'Intermediate';
+    if (tasks.some(t => t.includes('**Advanced:**'))) return 'Advanced';
+    if (tasks.some(t => t.includes('**Intermediate:**'))) return 'Intermediate';
+    return 'Beginner';
   };
 
-  const getRandomRating = () => {
-    return (Math.random() * (5 - 3.5) + 3.5).toFixed(1);
+  const getRandomRating = () => (Math.random() * (5 - 3.5) + 3.5).toFixed(1);
+
+  const calculateBatchProgress = (projects = []) => {
+    const total = projects.length;
+    const totalPercent = projects.reduce((acc, p) => acc + (p.progressPercent || 0), 0);
+    return total > 0 ? Math.round(totalPercent / total) : 0;
   };
 
   return (
@@ -82,84 +83,115 @@ useEffect(() => {
       </div>
 
       {batches.length > 0 ? (
-        batches.map((batch, bIdx) => (
-          <div key={batch._id} className="mb-4">
-            <h5 className="mb-3 text-light">
-              Batch {bIdx + 1} – Progress: {batch.progressPercent?.toFixed(0)}%
-            </h5>
-            <div className="row g-4">
-              {batch.projects.map((project, i) => {
-                let difficulty = determineDifficulty(project.tasks);
-                if (i === 0) difficulty = 'Beginner';
-                else if (i === 1) difficulty = 'Intermediate';
-                else if (i === 2) difficulty = 'Advanced';
-                const rating = getRandomRating();
+        batches.map((batch, bIdx) => {
+          const batchProgress = calculateBatchProgress(batch.projects);
 
-                return (
-                  <div className="col-md-6 col-lg-4 my-4" key={project._id}>
-                    <div className="card border-0 project-glow h-100">
-                      <div className="card-body d-flex flex-column">
-                        <div className="d-flex justify-content-between align-items-start mb-2">
-                          <h5 className="fw-bold text-white">
-                            {project.title}
-                            {project.completed && (
-                              <span className="badge bg-success ms-2">Done</span>
+          return (
+            <div key={batch._id} className="mb-5">
+              <h5 className="mb-2 text-light">📦 Batch {bIdx + 1} – Progress: {batchProgress}%</h5>
+              <div className="progress mb-4" style={{ height: '20px' }}>
+                <div
+                  className="progress-bar"
+                  style={{
+                    width: `${batchProgress}%`,
+                    background: 'linear-gradient(90deg, #00ffb7, #00c9ff)',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {batchProgress}%
+                </div>
+              </div>
+
+              <div className="row g-4">
+                {batch.projects
+                  .slice()
+                  .sort((a, b) => {
+                    const order = { Beginner: 0, Intermediate: 1, Advanced: 2 };
+                    return order[determineDifficulty(a.tasks)] - order[determineDifficulty(b.tasks)];
+                  })
+                  .map((project) => {
+                    const difficulty = determineDifficulty(project.tasks);
+                    const tools = extractTools(project.description);
+                    const taskSet = categorizeTasks(project.tasks);
+                    const rating = getRandomRating();
+
+                    return (
+                      <div className="col-md-6 col-lg-4" key={project._id}>
+                        <div className="card border-0 shadow-lg project-glow h-100">
+                          <div className="card-body d-flex flex-column">
+                            <div className="d-flex justify-content-between align-items-start mb-2">
+                              <h5 className="fw-bold text-white">
+                                {project.title}
+                              </h5>
+                              <span className="d-flex align-items-center text-warning fw-semibold">
+                                <Star size={16} className="me-1 fill-warning" />
+                                {rating}
+                              </span>
+                            </div>
+
+                            <p className="small text-light">{project.description?.split('\n')[0]}</p>
+
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                              <span className={`badge ${getBadgeClass(difficulty)}`}>{difficulty}</span>
+                              <small className="text-muted d-flex align-items-center">
+                                <Clock size={14} className="me-1" />
+                                {project.duration || '4-6 weeks'}
+                              </small>
+                            </div>
+
+                            <div className="mb-3">
+                              <h6 className="text-warning d-flex align-items-center mb-1">
+                                <ListTodo size={16} className="me-2" /> Steps
+                              </h6>
+                              {Object.entries(taskSet).map(([level, steps]) =>
+                                steps.length > 0 ? (
+                                  <div key={level} className="mb-2">
+                                    <p className="fw-semibold text-secondary mb-1">{level}</p>
+                                    <ul className="list-group list-group-flush">
+                                      {steps.map((step, i) => (
+                                        <li key={i} className="list-group-item small">
+                                          {step}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                ) : null
+                              )}
+                            </div>
+
+                            {project.roadmap?.length > 0 && (
+                              <div className="mb-3">
+                                <h6 className="text-success d-flex align-items-center mb-1">
+                                  <Target size={16} className="me-2" /> Roadmap Goals
+                                </h6>
+                                <ul className="list-group list-group-flush">
+                                  {project.roadmap.map((goal, i) => (
+                                    <li key={i} className="list-group-item small">
+                                      {goal}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
                             )}
-                          </h5>
-                          <span className="d-flex align-items-center text-warning fw-semibold">
-                            <Star size={16} className="me-1 fill-warning" />
-                            {rating}
-                          </span>
-                        </div>
 
-                        <p className="small text-light">
-                          {project.description || 'No description provided.'}
-                        </p>
-
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                          <span className={`badge ${getBadgeClass(difficulty)}`}>
-                            {difficulty}
-                          </span>
-                          <small className="text-muted d-flex align-items-center">
-                            <Clock size={14} className="me-1" />
-                            {project.duration || '4-6 weeks'}
-                          </small>
-                        </div>
-
-                        <div className="mb-3">
-                          {(project.technologies || []).map((tech, j) => (
-                            <span key={j} className="badge bg-light border text-dark me-1 mb-1">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-
-                        <div className="mt-auto d-flex gap-2">
-                          <button
-                            className="btn btn-outline-primary w-50 d-flex align-items-center justify-content-center gap-2"
-                            onClick={() => navigate('/roadmaps')}
-                          >
-                            <Map size={16} />
-                            Start Roadmap
-                          </button>
-
-                          <button
-                            className="btn btn-success w-50 d-flex align-items-center justify-content-center gap-2"
-                            onClick={() => handleComplete(batch._id, project._id)}
-                            disabled={project.completed}
-                          >
-                            <CheckCircle size={16} />
-                            {project.completed ? 'Completed' : 'Mark Complete'}
-                          </button>
+                            {/* Button Row */}
+                            <div className="mt-auto d-flex justify-content-center">
+                              <button
+                                className="btn btn-outline-primary w-100 d-flex align-items-center justify-content-center gap-2"
+                                onClick={() => navigate('/roadmaps')}
+                              >
+                                <Map size={16} /> Start Roadmap
+                              </button>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  })}
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
       ) : (
         <p className="text-center text-muted">No projects found. Generate some to get started!</p>
       )}

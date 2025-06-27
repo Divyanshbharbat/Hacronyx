@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import User from '../User.js';
-
+import auth from '../auth.js';
 const router = express.Router();
 
 // ---------------------------
@@ -77,6 +77,32 @@ router.post('/upload', upload.single('file'), (req, res) => {
     filename: req.file.filename,
     path: `/uploads/${req.file.filename}`,
   });
+});
+
+router.patch('/:userId/batch/:batchIndex/project/:projectIndex/checklist/:itemIndex', auth, async (req, res) => {
+  const { userId, batchIndex, projectIndex, itemIndex } = req.params;
+  const { completed } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    const batch = user.batches[batchIndex];
+    if (!batch) return res.status(404).json({ msg: 'Batch not found' });
+
+    const project = batch.projects[projectIndex];
+    if (!project) return res.status(404).json({ msg: 'Project not found' });
+
+    const checklistItem = project.checklist[itemIndex];
+    if (!checklistItem) return res.status(404).json({ msg: 'Checklist item not found' });
+
+    checklistItem.completed = completed;
+    await user.save();
+
+    res.json({ msg: 'Checklist item updated', checklist: project.checklist });
+  } catch (error) {
+    res.status(500).json({ msg: 'Server error', error: error.message });
+  }
 });
 
 export default router;

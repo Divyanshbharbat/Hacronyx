@@ -44,3 +44,100 @@ body {
   background-color: #1fc77a;
   color: white;
 }
+/* Projects.css */
+
+body {
+  background: linear-gradient(135deg, #000000, #1a1a1a);
+  color: white;
+}
+
+.container {
+  background: transparent;
+}
+
+/* Project Card Glow & Gradient */
+.project-glow {
+  background: linear-gradient(145deg, #0d0d0d, #1f1f1f);
+  border-radius: 15px;
+  color: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 0 15px rgba(0, 255, 200, 0.05);
+}
+
+.project-glow:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.2), 0 0 30px rgba(0, 0, 255, 0.1);
+}
+
+/* Gradient headers */
+h2.fw-bold {
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* List group customization */
+.list-group-item {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: #ccc;
+  font-size: 0.85rem;
+  padding: 6px 12px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+/* Badges */
+.badge {
+  font-size: 0.75rem;
+  padding: 0.4em 0.65em;
+  border-radius: 10px;
+}
+
+.bg-success {
+  background-color: #00c851 !important;
+}
+
+.bg-warning {
+  background-color: #ffbb33 !important;
+}
+
+.bg-danger {
+  background-color: #ff4444 !important;
+}
+
+.bg-light.text-dark {
+  background-color: #f1f1f1 !important;
+  color: #111 !important;
+}
+
+/* Button enhancements */
+button.btn {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: background 0.3s, transform 0.2s;
+}
+
+button.btn:hover {
+  transform: scale(1.03);
+}
+
+/* Gradient Toast Overrides (optional) */
+.react-hot-toast {
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+  .card-body h5 {
+    font-size: 1rem;
+  }
+
+  .btn {
+    font-size: 0.85rem;
+  }
+
+  .badge {
+    font-size: 0.7rem;
+  }
+}

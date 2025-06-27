@@ -22,7 +22,7 @@ const Login = () => {
       const res = await axios.post(`${import.meta.env.VITE_APP}/login`, data, { withCredentials: true });
       if (res.data.message === "success") {
         localStorage.setItem("cookie", res.data.token);
-        toast.success("Login Successful 🎉");
+    toast.success("Login Successfully")
         setTimeout(() => navigate("/home"), 1500);
       } else {
         toast.error(res.data.message || "Invalid credentials ❌");
@@ -62,7 +62,7 @@ const Login = () => {
                 <input
                   type="text"
                   {...register("username", { required: "Username is required" })}
-                  className="form-control form-control-lg bg-transparent text-white border-light"
+                  className="form-control form-control-lg  text-dark border-light"
                   placeholder="Username"
                 />
                 {errors.username && <p className="text-danger mt-2">{errors.username.message}</p>}
@@ -72,7 +72,7 @@ const Login = () => {
                 <input
                   type="password"
                   {...register("password", { required: "Password is required" })}
-                  className="form-control form-control-lg bg-transparent text-white border-light"
+                  className="form-control form-control-lg text-dark border-light"
                   placeholder="Password"
                 />
                 {errors.password && <p className="text-danger mt-2">{errors.password.message}</p>}

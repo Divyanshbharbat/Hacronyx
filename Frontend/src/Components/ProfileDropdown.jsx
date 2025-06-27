@@ -5,7 +5,7 @@ import {
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
-import { toast, Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 
 const ProfileDropdown = ({ isOpen, onClose, token }) => {
   const dropdownRef = useRef(null);
@@ -47,7 +47,8 @@ const ProfileDropdown = ({ isOpen, onClose, token }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('cookie');
-    window.location.href = '/login';
+    toast.success("Logout Successfully")
+   navigate("/")
   };
 
   if (!isOpen) return null;
@@ -64,7 +65,7 @@ const ProfileDropdown = ({ isOpen, onClose, token }) => {
         borderColor: '#1e3c52',
       }}
     >
-      <Toaster />
+      
 
       {/* User Info or Login */}
       <div className="text-center px-3 pt-3 pb-2 border-bottom border-secondary">
@@ -73,7 +74,7 @@ const ProfileDropdown = ({ isOpen, onClose, token }) => {
             <div className="text-light small">You're not logged in</div>
             <button
               onClick={() => {
-                toast('Redirecting to login...');
+              
                 navigate('/login');
               }}
               className="btn btn-success btn-sm mt-2"
@@ -99,17 +100,45 @@ const ProfileDropdown = ({ isOpen, onClose, token }) => {
               {userInfo.name?.charAt(0).toUpperCase() || 'U'}
             </div>
             <p className="fw-bold mb-0 small">{userInfo.name}</p>
-            <p className="text-light small mb-0">{userInfo.email}</p>
+            <p className="text-light small mb-1">{userInfo.email}</p>
+
+            {/* Batch Progress Summary */}
+            {userInfo.batches?.length > 0 && (() => {
+              const totalBatches = userInfo.batches.length;
+              const completedBatches = userInfo.batches.filter(
+                batch => batch.progressPercent === 100
+              ).length;
+              const batchCompletionPercent = Math.round((completedBatches / totalBatches) * 100);
+
+              return (
+                <div className="mt-3 text-start">
+                  <p className="text-info small mb-1">📊 Overall Progress</p>
+                  <div className="d-flex justify-content-between mb-1 text-light small">
+                    <span>✅ {completedBatches} / {totalBatches} Batches Completed</span>
+                    <strong>{batchCompletionPercent}%</strong>
+                  </div>
+                  <div className="progress" style={{ height: '8px' }}>
+                    <div
+                      className="progress-bar"
+                      style={{
+                        width: `${batchCompletionPercent}%`,
+                        background: 'linear-gradient(90deg, #00ffb7, #00c9ff)',
+                        transition: 'width 0.5s ease-in-out'
+                      }}
+                    ></div>
+                  </div>
+                </div>
+              );
+            })()}
           </>
         ) : (
           <div className="text-danger small">Error loading user</div>
         )}
       </div>
 
-      {/* Only show these if token exists */}
+      {/* Options */}
       {token && (
         <>
-          {/* Options */}
           <div className="px-3 pt-2 pb-1">
             {[
               { icon: <User size={15} />, label: 'Profile' },
@@ -153,14 +182,10 @@ const ProfileDropdown = ({ isOpen, onClose, token }) => {
             <div className="d-flex justify-content-between align-items-center small mb-2 text-white">
               <span>Theme</span>
               <div
-                className="rounded-circle"
-                style={{
-                  width: '22px',
-                  height: '22px',
-                  background: 'linear-gradient(90deg, #00ffb7, #00c9ff)',
-                  border: '1px solid #fff',
-                }}
-              ></div>
+                className="form-check form-switch m-0"
+              >
+                <input className="form-check-input" type="checkbox" id="darkModeToggle" />
+              </div>
             </div>
             <div className="d-flex justify-content-between align-items-center small text-white">
               <span>Language</span>

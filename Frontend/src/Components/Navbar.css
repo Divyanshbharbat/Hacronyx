@@ -98,3 +98,7 @@ input.bg-secondary {
   background-color: rgba(0, 255, 170, 0.2) !important;
   border-left: 3px solid #00ffaa;
 }
+.nav-link-custom:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}

@@ -1,12 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   Home, Briefcase, Triangle, Menu, X,
-  LogIn, LogOut, Search, Upload
+  LogIn, LogOut, Upload, Clock
 } from 'lucide-react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Navbar.css';
-import toast from 'react-hot-toast';
+import {toast,Toaster} from 'react-hot-toast';
+import axios from 'axios';
+import { Toast } from 'bootstrap';
 
 const navigationItems = [
   { title: 'Home', url: '/home', icon: Home },
@@ -14,23 +16,17 @@ const navigationItems = [
   { title: 'Roadmaps', url: '/roadmaps', icon: Triangle },
 ];
 
-const recentItems = [
-  'Learning path dashboard',
-  'Next.js landing page',
-  'Next.js food platform',
-  'Modern landing page',
-  'Restaurant POS',
-  'E-commerce Figma design',
-];
-
 export default function SidebarNavbar() {
   const [isExpanded, setIsExpanded] = useState(true);
+  const [recentItems, setRecentItems] = useState([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const navigate = useNavigate();
+
   const isLoggedIn = !!localStorage.getItem('cookie') || !!localStorage.getItem('cookie2');
 
   const handleLogout = () => {
     localStorage.removeItem('cookie');
-    localStorage.removeItem('cookie2');
+   toast.success("Logout Successfully")
     navigate('/');
   };
 
@@ -48,6 +44,7 @@ export default function SidebarNavbar() {
 
     try {
       toast.loading('📤 Uploading file...', { id: 'upload-toast' });
+
       const uploadRes = await fetch('http://localhost:3000/upload', {
         method: 'POST',
         headers: {
@@ -91,6 +88,27 @@ export default function SidebarNavbar() {
     }
   };
 
+  // Fetch user history
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setIsLoadingHistory(true);
+        const res = await axios.get('http://localhost:3000/api/history', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('cookie')}`,
+          },
+        });
+        setRecentItems(res.data.history || []);
+      } catch (err) {
+        console.error('Failed to fetch history:', err);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    if (isLoggedIn) fetchHistory();
+  }, [isLoggedIn]);
+
   return (
     <div
       className={`d-flex flex-column ${isExpanded ? 'sidebar-expanded' : 'sidebar-collapsed'}`}
@@ -100,13 +118,14 @@ export default function SidebarNavbar() {
         overflowY: 'auto',
         position: 'sticky',
         top: 0,
-        background: '#000000',
+        background: 'linear-gradient(180deg, #000000, #1c1c1c)',
         color: '#f1f1f1',
         transition: 'all 0.3s ease-in-out',
         boxShadow: '2px 0 10px rgba(0,0,0,0.5)',
         zIndex: 10,
       }}
     >
+   <Toaster/>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center border-bottom border-secondary p-3">
         {isExpanded && <h5 className="fw-bold mb-0 text-info">🧠 AI Tool</h5>}
@@ -114,9 +133,6 @@ export default function SidebarNavbar() {
           {isExpanded ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
-
-      {/* Search */}
-     
 
       {/* Nav Items */}
       <nav className="flex-grow-1 px-2 py-3">
@@ -135,13 +151,29 @@ export default function SidebarNavbar() {
         {isExpanded && (
           <>
             <hr className="text-secondary" />
-            <p className="text-info small fw-bold ps-3">Recents</p>
-            <ul className="list-unstyled ps-3">
-              {recentItems.map((title, idx) => (
-                <li key={idx} className="text-white-50 mb-2" style={{ cursor: 'pointer' }}>
-                  <small>• {title}</small>
+            <p className="text-info small fw-bold ps-3">Recent Concepts</p>
+            <ul className="list-unstyled ps-1">
+              {isLoadingHistory ? (
+                <li className="text-white-50 mb-2 px-3">
+                  <small>Loading...</small>
                 </li>
-              ))}
+              ) : recentItems.length === 0 ? (
+                <li className="text-white-50 mb-2 px-3">
+                  <small className="fst-italic">No recent activity</small>
+                </li>
+              ) : (
+                recentItems.map((title, idx) => (
+                  <li
+                    key={idx}
+                    className="d-flex align-items-center gap-2 px-3 py-2 rounded mb-1 nav-link-custom text-white"
+                    style={{ cursor: 'pointer', transition: '0.3s', backgroundColor: 'rgba(255,255,255,0.05)' }}
+                    onClick={() => navigate('/projects')}
+                  >
+                    <Clock size={16} className="text-info" />
+                    <small>{title}</small>
+                  </li>
+                ))
+              )}
             </ul>
           </>
         )}

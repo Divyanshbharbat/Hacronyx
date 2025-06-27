@@ -5,7 +5,6 @@ import MermaidDiagram from '../Components/MermaidDiagram';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import FeedbackModal from '../Components/FeedbackModal';
-import ProfileDropdown from '../Components/ProfileDropdown';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './home.css';
 
@@ -14,69 +13,58 @@ const Home = () => {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const token = localStorage.getItem('cookie');
   const navigate = useNavigate();
+
+  const ideaPool = [
+    'Build a modern e-commerce site with cart and payment',
+    'Create a job portal with resume upload and filters',
+    'Develop a social media dashboard using React and MongoDB',
+    'Create a portfolio builder tool for developers',
+    'Design a smart notes app with tagging and markdown',
+    'Build a chatbot with AI integration',
+    'Build an expense tracker with charts',
+    'Create a learning management system',
+    'Build a collaborative whiteboard app',
+    'Design a crypto portfolio tracker',
+    'Create a personal habit tracker with gamification'
+  ];
+
   useEffect(() => {
-  if (!token) {
-    toast.error('Please login to access projects.');
-    navigate('/login');
-  }
-}, [token]);
+    if (!token) {
+      toast.error('Please login to access projects.');
+      navigate('/login');
+    }
+  }, [token]);
+
   const handleSend = async () => {
     if (!inputValue.trim()) return;
 
-    const userMessage = {
-      id: Date.now().toString(),
-      content: inputValue,
-      sender: 'user',
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
 
     try {
-
-      
       const res = await axios.post(
         `${import.meta.env.VITE_APP}/api/divyansh`,
         { concept: inputValue, background: 'user' },
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
       const roadmap = res?.data?.roadmap || [];
       if (!roadmap.length) throw new Error('Empty roadmap');
 
-      const diagram = generateMermaidDiagram(roadmap, inputValue);
+      toast.success('✅ Project generated!');
+      setIsLoading(false);
 
-      setTimeout(() => {
-        const aiMessage = {
-          id: Date.now().toString(),
-          content: "Here's your personalized roadmap! 🚀",
-          sender: 'ai',
-          timestamp: new Date(),
-          diagram,
-        };
-
-        setMessages((prev) => [...prev, aiMessage]);
-        toast.success('✅ Project generated!');
-        setIsLoading(false);
-        setTimeout(() => navigate('/projects'), 1000);
-      }, 1500);
+      // Optional delay for better animation effect
+      setTimeout(() => navigate('/projects'), 1000);
     } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
-          content: "❌ Failed to fetch response from the server.",
-          sender: 'ai',
-          timestamp: new Date(),
-        },
-      ]);
-      toast.error('Generation failed. Try again.');
+      toast.error('❌ Generation failed. Try again.');
       setIsLoading(false);
     }
   };
@@ -99,16 +87,6 @@ const Home = () => {
     }
   };
 
-  // Auto-expand textarea height
-  useEffect(() => {
-    const textarea = document.querySelector('textarea');
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
-  }, [inputValue]);
-
-  // Voice input with mic
   const startListening = () => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
@@ -130,7 +108,6 @@ const Home = () => {
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
       toast.error('🎤 Mic error or permission denied.');
       setIsRecording(false);
     };
@@ -139,14 +116,11 @@ const Home = () => {
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100 bg-dark position-relative" style={{ zIndex: 1 }}>
-      <Toaster position="top-right" />
-
-      {/* Profile Avatar */}
+    <div className="d-flex flex-column min-vh-100 bg-dark position-relative">
      
 
       {/* Welcome Section */}
-      {messages.length === 0 && (
+      {messages.length === 0 && !isLoading && (
         <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center px-3 text-center">
           <div className="container">
             <h1 className="display-5 fw-bold text-gradient mb-4">What can I help you build?</h1>
@@ -163,7 +137,7 @@ const Home = () => {
               <div className="col-md-5">
                 <div className="card shadow border-0 h-100">
                   <div className="card-body">
-                    <div className="bg-success text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style={{ width: '40px', height: '40px' }}>🗺️</div>
+                    <div className="bg-success text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style={{ width: '40px', height: '40px' }}>🗺</div>
                     <h5 className="card-title">Start a Journey</h5>
                     <p className="card-text small">Create visual learning roadmaps for any technology or concept.</p>
                   </div>
@@ -174,35 +148,14 @@ const Home = () => {
         </div>
       )}
 
-      {/* Chat Area */}
-      {messages.length > 0 && (
-        <div className="flex-grow-1 overflow-auto px-4 py-3">
-          <div className="container">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`d-flex mb-3 ${msg.sender === 'user' ? 'justify-content-end' : 'justify-content-start'}`}>
-                <div className={`p-3 rounded shadow-sm ${msg.sender === 'user' ? 'bg-primary text-white' : 'bg-white border'} w-75`}>
-                  <p className="mb-2 small">{msg.content}</p>
-                  {msg.diagram && (
-                    <div className="mt-3 p-3 border rounded bg-light">
-                      <MermaidDiagram diagram={msg.diagram} />
-                    </div>
-                  )}
-                  <small className="text-muted d-block mt-2">{msg.timestamp.toLocaleTimeString()}</small>
-                </div>
-              </div>
-            ))}
-
-            {isLoading && (
-              <div className="d-flex justify-content-start">
-                <div className="p-3 bg-white border rounded">
-                  <div className="d-flex gap-2 align-items-center">
-                    <div className="typing-dot dot1"></div>
-                    <div className="typing-dot dot2"></div>
-                    <div className="typing-dot dot3"></div>
-                  </div>
-                </div>
-              </div>
-            )}
+      {/* Generating Animation */}
+      {isLoading && (
+        <div className="flex-grow-1 d-flex justify-content-center align-items-center text-white">
+          <div className="text-center">
+            <div className="typing-dot dot1 mb-2"></div>
+            <div className="typing-dot dot2 mb-2"></div>
+            <div className="typing-dot dot3 mb-2"></div>
+            <p className="mt-2">Generating your roadmap...</p>
           </div>
         </div>
       )}
@@ -228,14 +181,9 @@ const Home = () => {
                   paddingRight: '60px'
                 }}
               />
-              <button
-                className="btn position-absolute end-0 bottom-0 me-2 mb-2 p-0 text-muted"
-                style={{ border: 'none', background: 'transparent' }}
-              >
+              <button className="btn position-absolute end-0 bottom-0 me-2 mb-2 p-0 text-muted" style={{ border: 'none', background: 'transparent' }}>
                 <Paperclip size={16} />
               </button>
-
-              {/* Mic Button */}
               <button
                 onClick={startListening}
                 className="btn position-absolute end-0 top-0 me-2 mt-2 p-0"
@@ -260,8 +208,11 @@ const Home = () => {
 
       {/* Floating Buttons */}
       <button
-        onClick={() => setInputValue('Build a modern e-commerce site with cart and payment')}
-        className="btn btn-outline-light position-fixed rounded-pill fw-bold"
+        onClick={() => {
+          const random = ideaPool[Math.floor(Math.random() * ideaPool.length)];
+          setInputValue(random);
+        }}
+        className="btn position-fixed rounded-pill fw-bold"
         style={{
           bottom: '160px',
           right: '30px',
@@ -278,7 +229,7 @@ const Home = () => {
 
       <button
         onClick={() => setIsFeedbackOpen(true)}
-        className="btn btn-outline-light position-fixed rounded-pill fw-bold"
+        className="btn position-fixed rounded-pill fw-bold"
         style={{
           bottom: '220px',
           right: '30px',
@@ -293,11 +244,7 @@ const Home = () => {
         📝 Give Feedback
       </button>
 
-      {/* Feedback Modal */}
-      <FeedbackModal
-        isOpen={isFeedbackOpen}
-        onClose={() => setIsFeedbackOpen(false)}
-      />
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
     </div>
   );
 };

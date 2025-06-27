@@ -19,9 +19,13 @@ import router from './Router/router.js';
  // This import isn't needed unless you're defining new routers
 
 const corsOptions = {
-  origin: 'https://hacronyx3.vercel.app',
+  origin: 'https://hacronyx.vercel.app',
   credentials: true,
 };
+// const corsOptions = {
+//   origin: 'http://localhost:5173',
+//   credentials: true,
+// };
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use("/", router);
@@ -124,18 +128,46 @@ const verifyToken = (req, res, next) => {
   const token = authHeader.split(' ')[1];
 
   try {
-    const decoded = jwt.verify(token, 'divyansh'); // Use env in production
+    const decoded = jwt.verify(token, 'divyansh'); 
+    console.log(decoded)// Use env in production
     req.username = decoded.username;
+
     next();
   } catch (err) {
     return res.status(403).json({ message: 'Invalid or expired token' });
   }
 };
-app.get('/api/user/profile', verifyToken, async (req, res) => {
-    const user = await User.findOne({ username: req.username }); // Adjust based on DB
-  if (!user) return res.status(404).json({ error: 'User not found' });
-  res.json({ email: user.email, name: user.name });
+app.get('/api/roadmaps/:roadmapId/tasks', verifyToken, async (req, res) => {
+  try {
+    console.log(req.username)
+    const { roadmapId } = req.params;
+    console.log(roadmapId)
+    const user = await User.findOne({ username: req.username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Flatten all projects from all batches
+    const allProjects = user.batches.flatMap(batch => batch.projects);
+    const project = allProjects.find(p => p._id.toString() === roadmapId);
+
+    if (!project) {
+      return res.status(404).json({ message: 'Roadmap not found' });
+    }
+
+    return res.status(200).json({ tasks: project.tasks || [] });
+  } catch (err) {
+    console.error('❌ Error fetching tasks:', err);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
+// app.get('/api/user/profile', verifyToken, async (req, res) => {
+//     const user = await User.findOne({ username: req.username }); // Adjust based on DB
+//   if (!user) return res.status(404).json({ error: 'User not found' });
+//   res.json({ email: user.email, name: user.name });
+// });
+
 app.get('/api/roadmaps', verifyToken, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.username });
@@ -145,23 +177,94 @@ app.get('/api/roadmaps', verifyToken, async (req, res) => {
 
     user.batches.forEach((batch) => {
       batch.projects.forEach((project) => {
-      
         roadmaps.push({
+          _id: project._id, // ✅ Needed for frontend actions like fetchTasks
           title: project.title,
           description: project.description,
           duration: `${(project.roadmap?.length || 0) * 1.5} weeks`,
           difficulty: 'Intermediate',
           chart: generateMermaidChart(project.roadmap || []),
+          checklist: project.checklist || [], // ✅ Add checklist
+          tasks: project.tasks || [],  
+            taskProgress: project.taskProgress || [],        // ✅ Add tasks
         });
       });
     });
 
     res.json({ roadmaps });
   } catch (err) {
-    console.error('Error fetching roadmaps:', err);
+    console.error('❌ Error fetching roadmaps:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });
+app.patch('/api/roadmaps/:roadmapId/tasks-progress', verifyToken, async (req, res) => {
+  const { roadmapId } = req.params;
+  const { progress } = req.body;
+
+  try {
+    const user = await User.findOne({ username: req.username });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    let updated = false;
+
+    user.batches.forEach((batch) => {
+      batch.projects.forEach((project) => {
+        if (String(project._id) === roadmapId) {
+          // ✅ Update individual project task progress
+          project.taskProgress = progress;
+
+          const completedCount = progress.filter(Boolean).length;
+          const percent = progress.length ? Math.round((completedCount / progress.length) * 100) : 0;
+          project.progressPercent = percent;
+
+          updated = true;
+        }
+      });
+
+      // ✅ After updating a project, recalculate the entire batch's progress
+      const totalProjects = batch.projects.length;
+      const totalPercent = batch.projects.reduce((acc, proj) => acc + (proj.progressPercent || 0), 0);
+      batch.progressPercent = totalProjects ? Math.round(totalPercent / totalProjects) : 0;
+    });
+
+    if (!updated) return res.status(404).json({ message: 'Project not found' });
+
+    await user.save();
+
+    res.status(200).json({
+      message: 'Progress updated and saved successfully.',
+    });
+  } catch (err) {
+    console.error('❌ Error saving progress:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+// /api/user/profile
+app.get('/api/user/profile', verifyToken, async (req, res) => {
+  console.log('divyansh')
+  const user = await User.findOne({ username: req.username });
+console.log('divyansh',user)
+  if (!user) return res.status(404).json({ message: 'User not found' });
+
+  // Optional: calculate batchProgressPercent if not already stored
+  user.batches.forEach((batch) => {
+    const total = batch.projects.length;
+    const totalPercent = batch.projects.reduce((acc, proj) => acc + (proj.progressPercent || 0), 0);
+    console.log(totalPercent)
+    batch.progressPercent = total > 0 ? Math.round(totalPercent / total) : 0;
+  });
+
+  res.json({
+    name: user.username,
+    email: user.email,
+    batches: user.batches.map((b, i) => ({
+      batchNumber: i + 1,
+      progressPercent: b.progressPercent || 0,
+    })),
+  });
+});
+
+
 function escapeMermaidLabel(label) {
   return label
     .replace(/\[/g, '(')
@@ -209,15 +312,8 @@ app.post('/api/divyansh', async (req, res) => {
       return res.status(400).json({ error: 'Concept and background are required' });
     }
 
-    // Optional: log filePath or use it in generateProjectIdeas
-    if (filePath) {
-      console.log("Received uploaded file path:", filePath);
-    }
-
-    // Use filePath in your AI generation logic if relevant
-    const markdown = await generateProjectIdeas(concept, background, filePath); // You might modify this function to use the file
+    const markdown = await generateProjectIdeas(concept, background, filePath);
     const projects = parseMarkdownToTasks(markdown);
-
     const roadmap = projects?.[0]?.roadmap || [];
 
     user.batches = user.batches || [];
@@ -225,6 +321,11 @@ app.post('/api/divyansh', async (req, res) => {
       projects,
       createdAt: new Date(),
     });
+
+    user.history = user.history || [];
+    if (!user.history.includes(concept)) {
+      user.history.push(concept); // ✅ Save concept to history
+    }
 
     await user.save();
 
@@ -237,6 +338,22 @@ app.post('/api/divyansh', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+app.get('/api/history', async (req, res) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token provided' });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'divyansh');
+    const user = await User.findOne({ username: decoded.username });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    res.json({ history: user.history || [] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 function groupTasksByLevel(tasks) {
   const grouped = {
     beginner: [],
@@ -333,12 +450,38 @@ app.patch('/api/batches/:batchId/projects/:projectId/complete', async (req, res)
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+app.patch('/:roadmapId/checklist/:index', verifyToken, async (req, res) => {
+  try {
+    const { roadmapId, index } = req.params;
+    const { completed } = req.body;
+
+    const roadmap = await Roadmap.findById(roadmapId);
+    if (!roadmap) return res.status(404).json({ message: 'Roadmap not found' });
+
+    if (!roadmap.checklist || !roadmap.checklist[index])
+      return res.status(400).json({ message: 'Checklist item not found' });
+
+    roadmap.checklist[index].completed = completed;
+    await roadmap.save();
+
+    return res.status(200).json({ message: 'Checklist updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error while updating checklist' });
+  }
+});
+
+
+
 
 
 // ✅ MongoDB connection
 mongoose.connect("mongodb+srv://bharbatdivyansh1:divyansh9850364491@cluster0.jrdbpad.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
   .then(() => console.log("MongoDB connected successfully"))
   .catch(err => console.error("MongoDB connection error", err));
+// mongoose.connect("mongodb://localhost:27017/hacronyx")
+//   .then(() => console.log("MongoDB connected successfully"))
+//   .catch(err => console.error("MongoDB connection error", err));
 
 // ✅ Start server
 app.listen(3000, () => {

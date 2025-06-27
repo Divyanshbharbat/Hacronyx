@@ -59,7 +59,7 @@ const Signup = () => {
                 <input
                   type="text"
                   {...register("username", { required: "Username is required" })}
-                  className="form-control form-control-lg bg-transparent text-white border-light"
+                  className="form-control form-control-lg  text-dark border-light"
                   placeholder="Username"
                 />
                 {errors.username && <p className="text-danger mt-2">{errors.username.message}</p>}
@@ -69,7 +69,7 @@ const Signup = () => {
                 <input
                   type="email"
                   {...register("email", { required: "Email is required" })}
-                  className="form-control form-control-lg bg-transparent text-white border-light"
+                  className="form-control form-control-lg text-dark border-light"
                   placeholder="Email"
                 />
                 {errors.email && <p className="text-danger mt-2">{errors.email.message}</p>}
@@ -79,7 +79,7 @@ const Signup = () => {
                 <input
                   type="password"
                   {...register("password", { required: "Password is required", minLength: 6 })}
-                  className="form-control form-control-lg bg-transparent text-white border-light"
+                  className="form-control form-control-lg text-dark border-light"
                   placeholder="Password"
                 />
                 {errors.password && <p className="text-danger mt-2">{errors.password.message}</p>}
